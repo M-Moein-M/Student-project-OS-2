@@ -2,7 +2,6 @@ import java.util.ArrayList;
 
 public class Memory {
     private final long MEMORY_SIZE;
-    private Process [] processes;
     private ArrayList<Segment> segments;
     private final long MIN_SEG_SIZE = 32;
     private ReadWriteLock lock;
@@ -15,7 +14,7 @@ public class Memory {
         this.lock = new ReadWriteLock();
     }
 
-    public void allocate(long pid, long requestedSize){
+    public Segment allocate(long pid, long requestedSize){
         try{
             // if a proper segment was not found, this index is best candidate ot split to half
             int splitCandidateIndex = -1;
@@ -31,7 +30,7 @@ public class Memory {
 
                 if (seg.getSize() == neededSegmentSize) {
                     seg.assignSegment(pid, requestedSize);
-                    return;
+                    return seg;
                 }
 
                 if (seg.getSize() > neededSegmentSize && seg.getSize() < splitCandidateSize)
@@ -46,13 +45,14 @@ public class Memory {
                 // split memory segment
                 this.splitMemorySegment(splitCandidateIndex, neededSegmentSize);
                 this.segments.get(splitCandidateIndex).assignSegment(pid, requestedSize);
+                return this.segments.get(splitCandidateIndex);
             }
         }
         catch (InterruptedException e){
             System.out.println("Interrupt exception occurred");
         }
         catch (NotEnoughMemoryError e){
-            System.out.println("Memory allocation Failed. Not Enough memory space. Process id: "+pid);
+            System.out.format("Not Enough memory space(requested %dKB). Process id: %d\n",requestedSize, pid);
         } finally {
             try{
                 this.lock.unlockWrite();
@@ -60,6 +60,7 @@ public class Memory {
                 System.out.println("Interrupt exception occurred");
             }
         }
+        return null;
     }
 
     private void splitMemorySegment(int segmentIndex, long neededSize){
@@ -81,6 +82,10 @@ public class Memory {
 
     public void printMemory(){
         System.out.println(this.segments);
+    }
+
+    public long getMemorySize(){
+        return this.MEMORY_SIZE;
     }
 
     // find nearest suitable size to allocate
