@@ -2,6 +2,7 @@ public class Segment {
     private long size;
     private long initAddress;
     private long usedSize = 0;
+    private long pid;
 
     public Segment(long size, long initAddress){
         this.size = size;
@@ -10,8 +11,13 @@ public class Segment {
     }
 
     public void assignSegment(long pid, long usedSize){
-        System.out.println("Segment assigned to pid: "+pid);
+        System.out.format("Segment(%dKB) assigned to pid: %d\n", this.size, pid);
         this.usedSize = usedSize;
+        this.pid = pid;
+    }
+
+    public long getPid() {
+        return pid;
     }
 
     public boolean isOccupied(){
