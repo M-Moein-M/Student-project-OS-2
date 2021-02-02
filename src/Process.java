@@ -41,11 +41,13 @@ public class Process extends Thread {
                             continue;
                         }
                         break;
+
+                    // deallocate memory
                     case 1:
-                        // deallocate memory
                         break;
+
+                    // terminate process
                     case 2:
-                        // terminate process
                         break;
                 }
 

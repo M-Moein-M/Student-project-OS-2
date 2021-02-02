@@ -16,12 +16,12 @@ public class Memory {
 
     public Segment allocate(long pid, long requestedSize){
         try{
+            this.lock.lockWrite();  // get writer lock
+
             // if a proper segment was not found, this index is best candidate ot split to half
             int splitCandidateIndex = -1;
             long splitCandidateSize = Long.MAX_VALUE;
             long neededSegmentSize = this.findOptimumSize(requestedSize);
-
-            this.lock.lockWrite();  // get writer lock
 
             for(int i = 0; i < this.segments.size(); i++){
                 Segment seg = this.segments.get(i);
@@ -33,13 +33,15 @@ public class Memory {
                     return seg;
                 }
 
-                if (seg.getSize() > neededSegmentSize && seg.getSize() < splitCandidateSize)
+                if (seg.getSize() > neededSegmentSize && seg.getSize() < splitCandidateSize) {
                     splitCandidateIndex = i;
                     splitCandidateSize = seg.getSize();
+                }
             }
 
             // no allocatable memory segment found
             if (splitCandidateIndex == -1){
+                System.out.println("@@@@@");
                 throw new NotEnoughMemoryError();
             }else{
                 // split memory segment
@@ -52,7 +54,8 @@ public class Memory {
             System.out.println("Interrupt exception occurred");
         }
         catch (NotEnoughMemoryError e){
-            System.out.format("Not Enough memory space(requested %dKB). Process id: %d\n",requestedSize, pid);
+            System.out.format("Not Enough memory space(requested %dKB). Process id: %d.\n",requestedSize, pid);
+            this.printMemory();
         } finally {
             try{
                 this.lock.unlockWrite();
