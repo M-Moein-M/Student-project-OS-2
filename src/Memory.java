@@ -5,12 +5,14 @@ public class Memory {
     private Process [] processes;
     private ArrayList<Segment> segments;
     private final long MIN_SEG_SIZE = 32;
+    private ReadWriteLock lock;
 
     public Memory(long memorySize){
         this.MEMORY_SIZE = memorySize;
         this.segments = new ArrayList<Segment>();
         // add first memory segment
         this.segments.add(new Segment(memorySize, 0));
+        this.lock = new ReadWriteLock();
     }
 
     public void allocate(long pid, long requestedSize){
@@ -19,6 +21,8 @@ public class Memory {
             int splitCandidateIndex = -1;
             long splitCandidateSize = Long.MAX_VALUE;
             long neededSegmentSize = this.findOptimumSize(requestedSize);
+
+            this.lock.lockWrite();  // get writer lock
 
             for(int i = 0; i < this.segments.size(); i++){
                 Segment seg = this.segments.get(i);
@@ -44,9 +48,19 @@ public class Memory {
                 this.segments.get(splitCandidateIndex).assignSegment(pid, requestedSize);
             }
         }
+        catch (InterruptedException e){
+            System.out.println("Interrupt exception occurred");
+        }
         catch (NotEnoughMemoryError e){
             System.out.println("Memory allocation Failed. Not Enough memory space. Process id: "+pid);
+        } finally {
+            try{
+                this.lock.unlockWrite();
+            }catch (InterruptedException e){
+                System.out.println("Interrupt exception occurred");
+            }
         }
+
     }
 
     private void splitMemorySegment(int segmentIndex, long neededSize){
