@@ -60,7 +60,6 @@ public class Memory {
                 System.out.println("Interrupt exception occurred");
             }
         }
-
     }
 
     private void splitMemorySegment(int segmentIndex, long neededSize){
