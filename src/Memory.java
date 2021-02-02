@@ -8,7 +8,7 @@ public class Memory {
 
     public Memory(long memorySize){
         this.MEMORY_SIZE = memorySize;
-        this.segments = new ArrayList<>();
+        this.segments = new ArrayList<Segment>();
         // add first memory segment
         this.segments.add(new Segment(memorySize, 0));
     }
@@ -41,6 +41,7 @@ public class Memory {
             }else{
                 // split memory segment
                 this.splitMemorySegment(splitCandidateIndex, neededSegmentSize);
+                this.segments.get(splitCandidateIndex).assignSegment(pid, requestedSize);
             }
         }
         catch (NotEnoughMemoryError e){
@@ -48,8 +49,25 @@ public class Memory {
         }
     }
 
-    private void splitMemorySegment(long segmentIndex, long neededSize){
-        // split i-th segment in this.segments to two parts until neededSize is satisfied
+    private void splitMemorySegment(int segmentIndex, long neededSize){
+        while (true) {
+            Segment candidateSeg = this.segments.get(segmentIndex);
+            this.segments.remove(segmentIndex);
+            long childSize = candidateSeg.getSize() / 2;
+            long parentInitAddress = candidateSeg.getInitAddress();
+
+            // setup first half
+            this.segments.add(segmentIndex, new Segment(childSize, parentInitAddress));
+            // set up second half
+            this.segments.add(segmentIndex, new Segment(childSize, parentInitAddress + childSize));
+
+            if (childSize == neededSize)
+                return;
+        }
+    }
+
+    public void printMemory(){
+        System.out.println(this.segments);
     }
 
     // find nearest suitable size to allocate

@@ -10,6 +10,7 @@ public class Segment {
     }
 
     public void assignSegment(long pid, long usedSize){
+        System.out.println("Segment assigned to pid: "+pid);
         this.usedSize = usedSize;
     }
 
@@ -23,5 +24,16 @@ public class Segment {
 
     public long getSize() {
         return this.size;
+    }
+
+    public String toString(){
+        return "(SegSize: "+this.size+", "
+                +"Seg initAddress: "+this.initAddress+", "
+                +"Used size: "+ this.usedSize
+                +")\n";
+    }
+
+    public long getInitAddress() {
+        return initAddress;
     }
 }

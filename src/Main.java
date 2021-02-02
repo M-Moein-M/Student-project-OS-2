@@ -1,8 +1,8 @@
 public class Main {
     public static void main(String []args){
-        Memory memory = new Memory(256);
-        try {
-            System.out.println(memory.findOptimumSize(3));
-        }catch (NotEnoughMemoryError e){}
+        Memory memory = new Memory(1024);
+        memory.allocate(1000, 60);
+        memory.printMemory();
+
     }
 }
