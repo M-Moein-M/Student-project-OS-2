@@ -5,10 +5,12 @@ public class Process extends Thread {
     private long pid;
     private ArrayList<Segment> segments;
     private long initTime;
-    private static final long MIN_INTERVAL_DELAY = 1000;  // minimum delay between process actions(allocate, deallocate, terminate)
+    private static final long MIN_INTERVAL_DELAY = 2000;  // minimum delay between process actions(allocate, deallocate, terminate)
+    private Memory memory;
 
-    public Process(long pid){
+    public Process(long pid, Memory memory){
         this.initTime = System.currentTimeMillis();
+        this.memory = memory;
         this.pid = pid;
         this.segments = new ArrayList<>();
     }
@@ -21,14 +23,23 @@ public class Process extends Thread {
         while(true){
             try{
                 // generate delay
-                long delay = (long)(new Random().nextInt(2000)) + Process.MIN_INTERVAL_DELAY;
+                long delay = ((long)(new Random().nextInt(4000)) + Process.MIN_INTERVAL_DELAY)*2;
                 Thread.sleep(delay);
 
                 int action = new Random().nextInt(3);   // 0 for allocate, 1 for deallocate, 2 for terminate
                 System.out.println("pid: "+this.pid + "\taction: " + action);
                 switch (action){
+                    // allocate memory
                     case 0:
-                        // allocate memory
+                        // random size for memory request
+                        long requestSize = new Random().nextInt((int)(memory.getMemorySize()/4)) + 5;
+
+                        Segment seg = this.memory.allocate(this.pid, requestSize);
+                        if (seg != null){
+                            this.segments.add(seg);
+                        }else{ // no segment found
+                            continue;
+                        }
                         break;
                     case 1:
                         // deallocate memory
