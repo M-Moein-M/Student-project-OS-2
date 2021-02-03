@@ -28,7 +28,8 @@ public class Process extends Thread {
     }
 
     public long getRunTime(){
-        return this.isTerminated ? this.terminatedTime-this.initTime : -1;
+
+        return this.isTerminated ? (this.terminatedTime-this.initTime) : -1;
     }
 
     public void run(){
@@ -81,7 +82,7 @@ public class Process extends Thread {
     }
 
     public void terminate(){
-        this.terminatedTime = this.initTime = System.currentTimeMillis();
+        this.terminatedTime = System.currentTimeMillis();
         isTerminated = true;
         this.memory.deallocateAll(this.pid);
     }
