@@ -22,10 +22,6 @@ public class Process extends Thread {
     public void run(){
         while(true){
             try{
-                // generate delay
-                long delay = (long)(new Random().nextInt(4000)) + Process.MIN_INTERVAL_DELAY;
-                Thread.sleep(delay);
-
                 int action = new Random().nextInt(3);   // 0 for allocate, 1 for deallocate, 2 for terminate
                 switch (action){
                     // allocate memory
@@ -48,17 +44,31 @@ public class Process extends Thread {
 
                         int segmentIndex = new Random().nextInt(this.segments.size());
                         this.memory.deallocate(this.pid, this.segments.get(segmentIndex).getUsedSize());
+                        this.segments.remove(segmentIndex);
                         break;
 
                     // terminate process
                     case 2:
-                        break;
+                        // for better simulation skip if no segment is owned. add lower chance of termination
+                        if (this.segments.size() == 0 || new Random().nextInt(2) == 0)
+                            continue;
+                        System.out.format("Terminating process: %d\n", this.pid);
+                        this.terminate();
+                        return;
                 }
+
+                // generate delay
+                long delay = (long)(new Random().nextInt(4000)) + Process.MIN_INTERVAL_DELAY;
+                Thread.sleep(delay);
 
             }catch (InterruptedException e){
                 System.out.println("Error in process run method");
             }
         }
+    }
+
+    public void terminate(){
+        this.memory.deallocateAll(this.pid);
     }
 
     public long getPid() {

@@ -119,12 +119,32 @@ public class Memory {
             for (Segment seg: this.segments){
                 if (seg.getPid() == pid && seg.getUsedSize() == usedSize){
                     seg.releaseSegment();
+                    return;
                 }
             }
 
         } catch (InterruptedException e) {
             System.out.println("Interrupt exception occurred");
         } finally {
+            try {
+                this.lock.unlockWrite();
+            } catch (InterruptedException e) {
+                System.out.println("Interrupt exception occurred");
+            }
+        }
+    }
+
+    // deallocate all of the process segments
+    public void deallocateAll(long pid){
+        try {
+            this.lock.lockWrite();
+            for (Segment seg: this.segments){
+                if (seg.getPid() == pid)
+                    seg.releaseSegment();
+            }
+        } catch (InterruptedException e) {
+            System.out.println("Interrupt exception occurred");
+        }finally {
             try {
                 this.lock.unlockWrite();
             } catch (InterruptedException e) {
