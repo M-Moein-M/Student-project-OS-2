@@ -2,24 +2,24 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class ProcessPool {
-    private final int MAX_PROCESS_COUNT = 3;
+    private final int PROCESS_COUNT;
     private ArrayList<Process> processes;
     private Memory memory;
 
-    public ProcessPool(Memory memory){
+    public ProcessPool(Memory memory, int processCount){
+        this.PROCESS_COUNT = processCount;
         this.processes = new ArrayList<>();
         this.memory = memory;
 
-        int numberOfInitialProcess = new Random().nextInt(this.MAX_PROCESS_COUNT-1) + 2;  // at least 2 processes
-        System.out.println("Initializing ProcessPool with "+numberOfInitialProcess+" processes");
+        System.out.println("Initializing ProcessPool with "+PROCESS_COUNT+" processes");
 
-        for (int i = 0; i < numberOfInitialProcess; i++){
+        for (int i = 0; i < PROCESS_COUNT; i++){
             Process newProcesses = generateProcess(i);
             this.processes.add(newProcesses);
             System.out.println("Process created: "+ newProcesses.getPid());
         }
 
-        for (int i = 0; i < numberOfInitialProcess; i++){
+        for (int i = 0; i < PROCESS_COUNT; i++){
             final Process p = this.processes.get(i);
             p.start();
         }
