@@ -23,7 +23,7 @@ public class Process extends Thread {
         while(true){
             try{
                 // generate delay
-                long delay = ((long)(new Random().nextInt(4000)) + Process.MIN_INTERVAL_DELAY)*2;
+                long delay = (long)(new Random().nextInt(4000)) + Process.MIN_INTERVAL_DELAY;
                 Thread.sleep(delay);
 
                 int action = new Random().nextInt(3);   // 0 for allocate, 1 for deallocate, 2 for terminate
@@ -43,6 +43,11 @@ public class Process extends Thread {
 
                     // deallocate memory
                     case 1:
+                        if (this.segments.size() == 0)
+                            continue;
+
+                        int segmentIndex = new Random().nextInt(this.segments.size());
+                        this.memory.deallocate(this.pid, this.segments.get(segmentIndex).getUsedSize());
                         break;
 
                     // terminate process
@@ -58,10 +63,6 @@ public class Process extends Thread {
 
     public long getPid() {
         return pid;
-    }
-
-    public void addSegment(Segment memorySeg){
-
     }
 
 }

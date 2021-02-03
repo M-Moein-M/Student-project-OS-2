@@ -11,9 +11,15 @@ public class Segment {
     }
 
     public void assignSegment(long pid, long usedSize){
-        System.out.format("Segment(%dKB) assigned to pid: %d\n", this.size, pid);
+        System.out.format("ASSIGN segment(%dKB) to pid: %d\n", this.size, pid);
         this.usedSize = usedSize;
         this.pid = pid;
+    }
+
+    public void releaseSegment(){
+        System.out.format("RELEASE segment(%dKB) of pid: %d\n", this.size, pid);
+        this.pid = 0;
+        this.usedSize = 0;
     }
 
     public long getPid() {
