@@ -31,26 +31,24 @@ public class ProcessPool extends Thread{
 
     @Override
     public void run() {
-        while(true){
-            long usedSpace = 0;
-            long internalFragmentation = 0;
+        try {
+            sleep(100);
+            while(true){
+                long usedSpace = 0;
+                long internalFragmentation = 0;
+                for (Process p: this.processes){
+                    if (p.getSegmentCounts() == 0)
+                        continue;
+                    else
+                        usedSpace += p.getUsedSpace();
+                    internalFragmentation += p.getInternalFragmentation();
+                }
 
-            for (Process p: this.processes){
-                if (p.getSegmentCounts() == 0)
-                    continue;
-                else
-                    usedSpace += p.getUsedSpace();
-                internalFragmentation += p.getInternalFragmentation();
-
-            }
-
-            log(usedSpace, internalFragmentation);
-
-            try {
+                log(usedSpace, internalFragmentation);
                 sleep(5000);
-            } catch (InterruptedException e) {
-                System.out.println("Interrupt exception occurred");
             }
+        } catch (InterruptedException e) {
+            System.out.println("Interrupt exception occurred");
         }
 
     }
@@ -61,6 +59,15 @@ public class ProcessPool extends Thread{
         System.out.println("\tOccupied space: "+ memoryUsedSpace);
         System.out.println("\tFree space: "+ (this.memory.getMemorySize()-memoryUsedSpace));
         System.out.println("\tInternal Frag.: "+ (internalFrag));
+        System.out.println();
+
+        for (Process p: this.processes){
+            System.out.println("\tProcess: "+p.getPid());
+            System.out.println("\t\tOccupied space:"+p.getUsedSpace());
+            System.out.println("\t\tRun Time:"+(p.isTerminated() ? p.getRunTime()+" milliseconds" : "Running"));
+            if (p.isTerminated())
+                System.out.println("\t\tTerminated Time:"+p.getTerminatedTime());
+        }
 
         System.out.println("================================================================================");
     }

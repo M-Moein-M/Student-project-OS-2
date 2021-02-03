@@ -5,6 +5,8 @@ public class Process extends Thread {
     private long pid;
     private ArrayList<Segment> segments;
     private long initTime;
+    private long terminatedTime;
+    private boolean isTerminated;
     private static final long MIN_INTERVAL_DELAY = 2000;  // minimum delay between process actions(allocate, deallocate, terminate)
     private Memory memory;
 
@@ -13,10 +15,20 @@ public class Process extends Thread {
         this.memory = memory;
         this.pid = pid;
         this.segments = new ArrayList<>();
+        this.isTerminated = false;
+
+    }
+
+    public long getTerminatedTime() {
+        return terminatedTime;
+    }
+
+    public boolean isTerminated() {
+        return isTerminated;
     }
 
     public long getRunTime(){
-        return System.currentTimeMillis()-this.initTime;
+        return this.isTerminated ? this.terminatedTime-this.initTime : -1;
     }
 
     public void run(){
@@ -69,6 +81,8 @@ public class Process extends Thread {
     }
 
     public void terminate(){
+        this.terminatedTime = this.initTime = System.currentTimeMillis();
+        isTerminated = true;
         this.memory.deallocateAll(this.pid);
     }
 
