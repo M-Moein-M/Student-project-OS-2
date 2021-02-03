@@ -27,7 +27,6 @@ public class Process extends Thread {
                 Thread.sleep(delay);
 
                 int action = new Random().nextInt(3);   // 0 for allocate, 1 for deallocate, 2 for terminate
-                System.out.println("pid: "+this.pid + "\taction: " + action);
                 switch (action){
                     // allocate memory
                     case 0:
@@ -37,7 +36,7 @@ public class Process extends Thread {
                         Segment seg = this.memory.allocate(this.pid, requestSize);
                         if (seg != null){
                             this.segments.add(seg);
-                        }else{ // no segment found
+                        }else{ // no segment found or requested for space that already is owned by process
                             continue;
                         }
                         break;

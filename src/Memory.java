@@ -14,14 +14,43 @@ public class Memory {
         this.lock = new ReadWriteLock();
     }
 
+    // checks if process can use available space in its owned segments
+    private boolean checkProcessSpace(long pid, long requestedSize){
+        try {
+            this.lock.lockRead();
+
+            for (Segment seg: this.segments){
+                if (seg.getPid() == pid && seg.getAvailableSize() >= requestedSize){
+                    long newUsedSize = seg.getUsedSize()+requestedSize;
+                    seg.assignSegment(pid, newUsedSize);
+                    return true;
+                }
+            }
+            return false;
+        } catch (InterruptedException e) {
+            System.out.println("Interrupt exception occurred");
+        } finally {
+            this.lock.unlockRead();
+        }
+        return true;
+    }
+
     public Segment allocate(long pid, long requestedSize){
         try{
-            this.lock.lockWrite();  // get writer lock
+            boolean processHasSpace = this.checkProcessSpace(pid, requestedSize);
+            if (processHasSpace){
+                System.out.format("Process %d has available space in owned segments. Allocating " +
+                        "new segment(%dKB) declined. Segment used size increased.\n", pid, requestedSize);
+                return null;
+            }
+
 
             // if a proper segment was not found, this index is best candidate ot split to half
             int splitCandidateIndex = -1;
             long splitCandidateSize = Long.MAX_VALUE;
             long neededSegmentSize = this.findOptimumSize(requestedSize);
+
+            this.lock.lockWrite();  // get writer lock
 
             for(int i = 0; i < this.segments.size(); i++){
                 Segment seg = this.segments.get(i);
@@ -41,7 +70,6 @@ public class Memory {
 
             // no allocatable memory segment found
             if (splitCandidateIndex == -1){
-                System.out.println("@@@@@");
                 throw new NotEnoughMemoryError();
             }else{
                 // split memory segment

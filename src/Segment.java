@@ -28,6 +28,10 @@ public class Segment {
         return this.usedSize;
     }
 
+    public long getAvailableSize(){
+        return this.size-this.usedSize;
+    }
+
     public long getSize() {
         return this.size;
     }
@@ -35,7 +39,8 @@ public class Segment {
     public String toString(){
         return "(SegSize: "+this.size+", "
                 +"Seg initAddress: "+this.initAddress+", "
-                +"Used size: "+ this.usedSize
+                +"Used size: "+ this.usedSize+", "
+                +"pid: "+this.pid
                 +")\n";
     }
 
