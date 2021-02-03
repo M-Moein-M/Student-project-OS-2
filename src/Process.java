@@ -62,7 +62,7 @@ public class Process extends Thread {
                     // terminate process
                     case 2:
                         // for better simulation skip if no segment is owned. add lower chance of termination
-                        if (this.segments.size() == 0 || new Random().nextInt(2) == 0)
+                        if (this.segments.size() == 0)
                             continue;
                         System.out.format("Terminating process: %d\n", this.pid);
                         this.terminate();

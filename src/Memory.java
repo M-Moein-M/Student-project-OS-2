@@ -83,7 +83,6 @@ public class Memory {
         }
         catch (NotEnoughMemoryError e){
             System.out.format("Not Enough memory space(requested %dKB). Process id: %d.\n",requestedSize, pid);
-            this.printMemory();
         } finally {
             try{
                 this.lock.unlockWrite();
@@ -154,7 +153,9 @@ public class Memory {
     }
 
     public void printMemory(){
-        System.out.println(this.segments);
+        for (Segment seg: this.segments){
+            System.out.println("\t"+seg);
+        }
     }
 
     public long getMemorySize(){
@@ -175,21 +176,5 @@ public class Memory {
             else
                 currentSize /= 2;
         }
-    }
-
-    public long getMemoryUsedSpace(){
-        try {
-            this.lock.lockRead();
-            long usedSpace = 0;
-            for (Segment seg: this.segments){
-                usedSpace += seg.getUsedSize();
-            }
-            return usedSpace;
-        } catch (InterruptedException e) {
-            System.out.println("Interrupt exception occurred");
-        } finally {
-            this.lock.unlockRead();
-        }
-        return 0;
     }
 }

@@ -47,7 +47,7 @@ public class Segment {
                 +"Seg initAddress: "+this.initAddress+", "
                 +"Used size: "+ this.usedSize+", "
                 +"pid: "+this.pid
-                +")\n";
+                +")";
     }
 
     public long getInitAddress() {

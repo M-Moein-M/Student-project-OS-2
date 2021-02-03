@@ -13,7 +13,7 @@ public class ProcessPool extends Thread{
         System.out.println("Initializing ProcessPool with "+PROCESS_COUNT+" processes");
 
         for (int i = 0; i < PROCESS_COUNT; i++){
-            Process newProcesses = generateProcess(i);
+            Process newProcesses = new Process(1000+i, this.memory);
             this.processes.add(newProcesses);
             System.out.println("Process created: "+ newProcesses.getPid());
         }
@@ -24,10 +24,6 @@ public class ProcessPool extends Thread{
         }
     }
 
-    public Process generateProcess(int index){
-        // generate a number for id based on process index in this.processes
-        return new Process(1000+index, this.memory);
-    }
 
     @Override
     public void run() {
@@ -36,7 +32,10 @@ public class ProcessPool extends Thread{
             while(true){
                 long usedSpace = 0;
                 long internalFragmentation = 0;
+                boolean allProcessesAreTerminated = true;
                 for (Process p: this.processes){
+                    if (!p.isTerminated())
+                        allProcessesAreTerminated = false;
                     if (p.getSegmentCounts() == 0)
                         continue;
                     else
@@ -45,6 +44,12 @@ public class ProcessPool extends Thread{
                 }
 
                 log(usedSpace, internalFragmentation);
+
+                if (allProcessesAreTerminated){
+                    System.out.println("All processes terminated.");
+                    return;
+                }
+
                 sleep(5000);
             }
         } catch (InterruptedException e) {
@@ -68,6 +73,9 @@ public class ProcessPool extends Thread{
             if (p.isTerminated())
                 System.out.println("\t\tTerminated Time:"+p.getTerminatedTime());
         }
+
+        System.out.println();
+        this.memory.printMemory();
 
         System.out.println("================================================================================");
     }
