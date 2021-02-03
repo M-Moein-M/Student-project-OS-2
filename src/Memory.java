@@ -111,13 +111,13 @@ public class Memory {
         }
     }
 
-    public void deallocate(long pid, long usedSize){
+    public void deallocate(long pid, long initAddress){
         try {
             this.lock.lockWrite();
 
             // find segment to deallocate
             for (Segment seg: this.segments){
-                if (seg.getPid() == pid && seg.getUsedSize() == usedSize){
+                if (seg.getPid() == pid && seg.getInitAddress() == initAddress){
                     seg.releaseSegment();
                     return;
                 }
@@ -175,5 +175,21 @@ public class Memory {
             else
                 currentSize /= 2;
         }
+    }
+
+    public long getMemoryUsedSpace(){
+        try {
+            this.lock.lockRead();
+            long usedSpace = 0;
+            for (Segment seg: this.segments){
+                usedSpace += seg.getUsedSize();
+            }
+            return usedSpace;
+        } catch (InterruptedException e) {
+            System.out.println("Interrupt exception occurred");
+        } finally {
+            this.lock.unlockRead();
+        }
+        return 0;
     }
 }

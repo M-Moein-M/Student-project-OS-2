@@ -43,7 +43,7 @@ public class Process extends Thread {
                             continue;
 
                         int segmentIndex = new Random().nextInt(this.segments.size());
-                        this.memory.deallocate(this.pid, this.segments.get(segmentIndex).getUsedSize());
+                        this.memory.deallocate(this.pid, this.segments.get(segmentIndex).getInitAddress());
                         this.segments.remove(segmentIndex);
                         break;
 
@@ -54,6 +54,7 @@ public class Process extends Thread {
                             continue;
                         System.out.format("Terminating process: %d\n", this.pid);
                         this.terminate();
+                        this.segments.clear();
                         return;
                 }
 
@@ -73,6 +74,26 @@ public class Process extends Thread {
 
     public long getPid() {
         return pid;
+    }
+
+    public int getSegmentCounts(){
+        return this.segments.size();
+    }
+
+    public long getUsedSpace(){
+        long usedSpace = 0;
+        for (Segment seg: this.segments){
+            usedSpace += seg.getUsedSize();
+        }
+        return usedSpace;
+    }
+
+    public long getInternalFragmentation(){
+        long internalFrag = 0;
+        for (Segment seg: this.segments){
+            internalFrag += seg.getAvailableSize();
+        }
+        return internalFrag;
     }
 
 }

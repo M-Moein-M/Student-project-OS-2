@@ -1,7 +1,6 @@
 import java.util.ArrayList;
-import java.util.Random;
 
-public class ProcessPool {
+public class ProcessPool extends Thread{
     private final int PROCESS_COUNT;
     private ArrayList<Process> processes;
     private Memory memory;
@@ -30,4 +29,39 @@ public class ProcessPool {
         return new Process(1000+index, this.memory);
     }
 
+    @Override
+    public void run() {
+        while(true){
+            long usedSpace = 0;
+            long internalFragmentation = 0;
+
+            for (Process p: this.processes){
+                if (p.getSegmentCounts() == 0)
+                    continue;
+                else
+                    usedSpace += p.getUsedSpace();
+                internalFragmentation += p.getInternalFragmentation();
+
+            }
+
+            log(usedSpace, internalFragmentation);
+
+            try {
+                sleep(5000);
+            } catch (InterruptedException e) {
+                System.out.println("Interrupt exception occurred");
+            }
+        }
+
+    }
+
+    private void log(long memoryUsedSpace, long internalFrag){
+        System.out.println("================================== Memory Log ==================================");
+
+        System.out.println("\tOccupied space: "+ memoryUsedSpace);
+        System.out.println("\tFree space: "+ (this.memory.getMemorySize()-memoryUsedSpace));
+        System.out.println("\tInternal Frag.: "+ (internalFrag));
+
+        System.out.println("================================================================================");
+    }
 }
